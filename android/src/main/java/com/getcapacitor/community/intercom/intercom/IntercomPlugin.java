@@ -1,5 +1,6 @@
 package com.getcapacitor.community.intercom;
 
+
 import com.getcapacitor.CapConfig;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -10,11 +11,18 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import android.app.Application;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.google.firebase.messaging.RemoteMessage;
 
 import io.intercom.android.sdk.Intercom;
 import io.intercom.android.sdk.IntercomPushManager;
@@ -24,7 +32,7 @@ import io.intercom.android.sdk.push.IntercomPushClient;
 
 @CapacitorPlugin(name = "Intercom", permissions = @Permission(strings = {}, alias = "receive"))
 public class IntercomPlugin extends Plugin {
-    private final IntercomPushClient intercomPushClient = new IntercomPushClient();
+    public static final IntercomPushClient intercomPushClient = new IntercomPushClient();
 
     @Override
     public void load() {
@@ -41,11 +49,33 @@ public class IntercomPlugin extends Plugin {
         bridge.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //We also initialize intercom here just in case it has died. If Intercom is already set up, this won't do anything.
+                // We also initialize intercom here just in case it has died. If Intercom is
+                // already set up, this won't do anything.
                 setUpIntercom();
                 Intercom.client().handlePushMessage();
             }
         });
+    }
+
+    public static boolean isIntercomPush(RemoteMessage remoteMessage) {
+        try {
+            Map message = remoteMessage.getData();
+            return intercomPushClient.isIntercomPush(message);
+        } catch (Exception err) {
+            return false;
+        }
+    }
+
+    public static void handleRemotePushMessage(@NonNull Application application, RemoteMessage remoteMessage) {
+        try {
+            Map message = remoteMessage.getData();
+            intercomPushClient.handlePush(application, message);
+        } catch (Exception err) {
+        }
+    }
+
+    public static void sendTokenToIntercom(Application application, @NonNull String token) {
+        intercomPushClient.sendTokenToIntercom(application, token);
     }
 
     @PluginMethod
@@ -228,7 +258,8 @@ public class IntercomPlugin extends Plugin {
             // init intercom sdk
             Intercom.initialize(this.getActivity().getApplication(), apiKey, appId);
         } catch (Exception e) {
-            Logger.error("Intercom", "ERROR: Something went wrong when initializing Intercom. Check your configurations", e);
+            Logger.error("Intercom",
+                    "ERROR: Something went wrong when initializing Intercom. Check your configurations", e);
         }
     }
 
