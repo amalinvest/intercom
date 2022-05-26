@@ -43,44 +43,18 @@
 
 We're starting fresh under an official org. If you were using the previous npm package `capacitor-intercom`, please update your package.json to `@capacitor-community/intercom`. Check out [changelog](/CHANGELOG.md) for more info.
 
-## Breaking changes from Capacitor v2 to v3
-
-- `UserUpdateOptions` option type becomes `IntercomUserUpdateOptions`
-- `IntercomPlugin` configuration key becomes `Intercom`
-- `android-apiKey` config key becomes `androidApiKey`
-- `android-appId` config key becomes `androidAppId`
-- `ios-apiKey` config key becomes `iosApiKey`
-- `ios-appId` config key becomes `iosAppId`
-- [Switch from CAPBridge to ApplicationDelegateProxy](https://capacitorjs.com/docs/updating/3-0#switch-from-capbridge-to-applicationdelegateproxy-in-application-events) in application events
-- remove the whole onCreate initialization from your app's `MainActivity.java`
-
-```diff
- public class MainActivity extends BridgeActivity {
--    @Override
--    public void onCreate(Bundle savedInstanceState) {
--        super.onCreate(savedInstanceState);
--
--        // Initializes the Bridge
--        this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
--            // Additional plugins you've installed go here
--            add(IntercomPlugin.class);
--        }});
--    }
- }
-```
-
 ## Installation
 
 Using npm:
-
+~~npm install @capacitor-community/intercom~~
 ```bash
-npm install @capacitor-community/intercom
+npm install https://github.com/amalinvest/intercom --save
 ```
 
 Using yarn:
-
+~~yarn add @capacitor-community/intercom~~
 ```bash
-yarn add @capacitor-community/intercom
+yarn add https://github.com/amalinvest/intercom 
 ```
 
 Sync native files:
