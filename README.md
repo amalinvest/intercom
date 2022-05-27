@@ -109,11 +109,6 @@ Intercom.setUserHash({ hmac: 'xyz' });
 
 ## iOS setup
 
-- `ionic start my-cap-app --capacitor`
-- `cd my-cap-app`
-- `npm install —-save @capacitor-community/intercom`
-- `mkdir www && touch www/index.html`
-- `npx cap add ios`
 - add intercom keys to capacitor's configuration file
 
 ```
@@ -128,20 +123,12 @@ Intercom.setUserHash({ hmac: 'xyz' });
 …
 }
 ```
-
-- `npx cap open ios`
-- sign your app at xcode (general tab)
-
+- `npx cap run ios`
 > Tip: every time you change a native code you may need to clean up the cache (Product > Clean build folder) and then run the app again.
 
 ## Android setup
 
-- `ionic start my-cap-app --capacitor`
-- `cd my-cap-app`
-- `npm install —-save @capacitor-community/intercom`
-- `mkdir www && touch www/index.html`
-- `npx cap add android`
-- add intercom keys to capacitor's configuration file
+1. Add intercom keys to capacitor's configuration file
 
 ```
 {
@@ -156,12 +143,55 @@ Intercom.setUserHash({ hmac: 'xyz' });
 }
 ```
 
-- `npx cap open android`
+- `npx cap run android`
 
 Now you should be set to go. Try to run your client using `ionic cap run android --livereload`.
 
 > Tip: every time you change a native code you may need to clean up the cache (Build > Clean Project | Build > Rebuild Project) and then run the app again.
 
+2. Add this dependecy to `android/app/build.gradle`
+```gradle
+dependencies {
+     implementation 'com.google.firebase:firebase-messaging:20.2.+'
+}
+```
+
+3. Create a new file `android/app/src/main/java/com/YOUR_APP/PushNotificationService.java` that extends `FirebaseMesssagingService` if you dont have one already.
+
+  ```java
+  package com.YOUR_APP;
+
+  import com.google.firebase.messaging.FirebaseMessagingService;
+  import com.google.firebase.messaging.RemoteMessage;
+  import com.getcapacitor.community.intercom.IntercomPlugin;
+
+  public class PushNotificationService extends FirebaseMessagingService {
+
+   @Override
+    public void onNewToken(String refreshedToken) {
+      IntercomPlugin.sendTokenToIntercom(getApplication(), refreshedToken);
+    }
+
+   public void onMessageReceived(RemoteMessage remoteMessage) {
+      if (IntercomPlugin.isIntercomPush(remoteMessage)) {
+        IntercomPlugin.handleRemotePushMessage(getApplication(), remoteMessage);
+     }
+    }
+  } 
+```
+4. Then add the following code to `android/app/src/main/AndroidManifest.xml`
+ ```xml
+       <service 
+         android:name=".PushNotificationService"
+         android:enabled="true"
+         android:exported="true">
+          <intent-filter>
+             <action android:name="com.google.firebase.MESSAGING_EVENT" />
+          </intent-filter>
+       </service>
+    </application>
+</manifest>
+  ```
 ## License
 
 MIT
